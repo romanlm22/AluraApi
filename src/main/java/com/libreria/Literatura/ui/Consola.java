@@ -42,7 +42,7 @@ public class Consola {
             switch (opcion) {
                 case 1 -> opcionBuscarPorTitulo();
                 case 2 -> opcionListarLibros();
-                case 3 -> opcionListarAutores();    // funciona incluso la primera vez
+                case 3 -> opcionListarAutores();
                 case 4 -> opcionAutoresVivosEnSiglo();
                 case 5 -> opcionLibrosPorIdioma();
                 case 0 -> System.out.println("Saliendo...");

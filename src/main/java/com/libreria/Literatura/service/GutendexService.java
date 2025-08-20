@@ -13,20 +13,17 @@ import java.util.stream.Collectors;
 public class GutendexService {
 
     private static final String API = "https://gutendex.com/books/";
-    private static final int PAGE_SIZE = 32; // subí esto si querés más items en una sola carga
+    private static final int PAGE_SIZE = 32;
     private final RestTemplate rest = new RestTemplate();
 
-    // Cache en memoria (se llena on-demand con SOLO la primera página)
     private volatile List<Libro> cacheLibros = new ArrayList<>();
 
-    /** DTO para la respuesta de Gutendex */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class GutendexResponse {
         public String next;
         public List<Libro> results;
     }
 
-    /** Carga SOLO la primera página para que sea rápido */
     public synchronized void cargarTodosLosLibros() {
         if (!cacheLibros.isEmpty()) return;
         try {
@@ -41,7 +38,6 @@ public class GutendexService {
             }
         } catch (Exception e) {
             System.out.println("⚠️ No se pudieron cargar libros ahora: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-            // se reintentará cuando se vuelvan a pedir
         }
     }
 
@@ -50,7 +46,6 @@ public class GutendexService {
         return cacheLibros;
     }
 
-    /** Autores únicos por nombre, basados en la primera página cargada */
     public List<Autor> getTodosLosAutores() {
         return getTodosLosLibros().stream()
                 .filter(l -> l.getAuthors() != null)
@@ -61,7 +56,6 @@ public class GutendexService {
                 .values().stream().toList();
     }
 
-    /** Busca por título sólo dentro de los libros cacheados (1ra página) */
     public List<Libro> buscarPorTitulo(String texto) {
         String q = texto.toLowerCase(Locale.ROOT);
         return getTodosLosLibros().stream()
@@ -69,7 +63,6 @@ public class GutendexService {
                 .toList();
     }
 
-    /** Filtra por idioma sólo dentro de los libros cacheados (1ra página) */
     public List<Libro> librosPorIdioma(String codigo) {
         String code = codigo.trim().toLowerCase(Locale.ROOT);
         return getTodosLosLibros().stream()
@@ -79,7 +72,6 @@ public class GutendexService {
                 .toList();
     }
 
-    /** Autores vivos en [anio, anio+99], considerando sólo la 1ra página */
     public List<Autor> autoresVivosEnSiglo(int anio) {
         int fin = anio + 99;
         return getTodosLosAutores().stream()
